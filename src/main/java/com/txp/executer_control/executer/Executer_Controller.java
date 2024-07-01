@@ -1,5 +1,7 @@
 package com.txp.executer_control.executer;
 
+import com.alibaba.fastjson.JSON;
+import com.txp.executer_control.domain.RequestAdbDto;
 import com.txp.executer_control.domain.ResponseAdbDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
@@ -27,16 +29,28 @@ public class Executer_Controller {
     /**
      * 执行主逻辑
      * 每两秒执行询问一次
+     *
+     * 1.发送请求
+     * 2.执行命令 -> 推送消息
      */
     @Scheduled(fixedRate = 2000)
     public void Executer(){
         log.info("定时器执行");
         try{
+            RequestAdbDto requestAdbDto = new RequestAdbDto();
+            requestAdbDto.setUser(environment.getProperty("logicuser.name"));
+            requestAdbDto.setPassword(environment.getProperty("logicuser.password"));
+
+            log.info(JSON.toJSONString(requestAdbDto));
+
             ResponseEntity<ResponseAdbDto> resultAdbDtoResponseEntity =
-                    restTemplate.postForEntity(environment.getProperty("logicServer.hostAndPort"), "", ResponseAdbDto.class);
+                    restTemplate.postForEntity(environment.getProperty("logicServer.hostAndPort"), requestAdbDto, ResponseAdbDto.class);
+
+            log.info(JSON.toJSONString(resultAdbDtoResponseEntity.getBody()));
 
         }catch (Exception e){
             e.printStackTrace();
+            log.info("消息发送异常");
         }
     }
 }

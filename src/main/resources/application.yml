@@ -1,4 +1,7 @@
 server:
   port: 8087
 logicServer:
-  hostAndPort: http://127.0.0.1:8080/executer/question
+  hostAndPort: http://127.0.0.1:8080/logic/question
+logicuser:
+  name: txpTest
+  password: 123456
