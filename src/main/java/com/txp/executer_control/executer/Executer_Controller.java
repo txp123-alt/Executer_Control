@@ -3,6 +3,7 @@ package com.txp.executer_control.executer;
 import com.alibaba.fastjson.JSON;
 import com.txp.executer_control.domain.RequestAdbDto;
 import com.txp.executer_control.domain.ResponseAdbDto;
+import com.txp.executer_control.util.ADBExecuterUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +22,21 @@ public class Executer_Controller {
 
     private final RestTemplate restTemplate;
 
+    //用户名
+    private String user;
+
+    //密码
+    private String password;
+
+    //请求地址
+    private String hostAndPort;
+
     public Executer_Controller(Environment environment, RestTemplate restTemplate){
         this.restTemplate= restTemplate;
         this.environment = environment;
+        this.user = environment.getProperty("logicuser.name");
+        this.password = environment.getProperty("logicuser.password");
+        this.hostAndPort = environment.getProperty("logicServer.hostAndPort");
     }
 
     /**
@@ -38,19 +51,28 @@ public class Executer_Controller {
         log.info("定时器执行");
         try{
             RequestAdbDto requestAdbDto = new RequestAdbDto();
-            requestAdbDto.setUser(environment.getProperty("logicuser.name"));
-            requestAdbDto.setPassword(environment.getProperty("logicuser.password"));
-
+            requestAdbDto.setUser(user);
+            requestAdbDto.setPassword(password);
             log.info(JSON.toJSONString(requestAdbDto));
 
             ResponseEntity<ResponseAdbDto> resultAdbDtoResponseEntity =
-                    restTemplate.postForEntity(environment.getProperty("logicServer.hostAndPort"), requestAdbDto, ResponseAdbDto.class);
+                    restTemplate.postForEntity(hostAndPort, requestAdbDto, ResponseAdbDto.class);
 
             log.info(JSON.toJSONString(resultAdbDtoResponseEntity.getBody()));
 
+            if (null != resultAdbDtoResponseEntity.getBody().getCode() &&resultAdbDtoResponseEntity.getBody().getCode() == 200){
+                if (resultAdbDtoResponseEntity.getBody().getThreadSleepTime() > 0){
+                    log.info("服务器繁忙，下次请求需要的延时时长为：{}毫秒",resultAdbDtoResponseEntity.getBody().getThreadSleepTime());
+                    Thread.sleep(resultAdbDtoResponseEntity.getBody().getThreadSleepTime());
+                }
+                //开始执行ADB命令
+                ADBExecuterUtil.execute("","");
+                log.info("需要执行的ADB命令为：{}",resultAdbDtoResponseEntity.getBody().getAdbCommand());
+            }
+
         }catch (Exception e){
             e.printStackTrace();
-            log.info("消息发送异常");
+            log.info("消息发送异常，开始重试， 异常消息:{}",e.getMessage());
         }
     }
 }
