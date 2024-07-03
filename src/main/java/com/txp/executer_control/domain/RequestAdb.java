@@ -3,7 +3,7 @@ package com.txp.executer_control.domain;
 import lombok.Data;
 
 @Data
-public class RequestAdbDto {
+public class RequestAdb {
     //执行的命令代码(对应数据库中的命令ID)
     String commandCode;
 

@@ -3,7 +3,7 @@ package com.txp.executer_control.domain;
 import lombok.Data;
 
 @Data
-public class ResponseAdbDto {
+public class ResponseAdb {
     //响应状态
     Integer code;
 

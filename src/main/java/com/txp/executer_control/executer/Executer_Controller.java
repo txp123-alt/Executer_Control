@@ -1,8 +1,8 @@
 package com.txp.executer_control.executer;
 
 import com.alibaba.fastjson.JSON;
-import com.txp.executer_control.domain.RequestAdbDto;
-import com.txp.executer_control.domain.ResponseAdbDto;
+import com.txp.executer_control.domain.RequestAdb;
+import com.txp.executer_control.domain.ResponseAdb;
 import com.txp.executer_control.util.ADBExecuterUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
@@ -50,13 +50,13 @@ public class Executer_Controller {
     public void Executer(){
         log.info("定时器执行");
         try{
-            RequestAdbDto requestAdbDto = new RequestAdbDto();
-            requestAdbDto.setUser(user);
-            requestAdbDto.setPassword(password);
-            log.info(JSON.toJSONString(requestAdbDto));
+            RequestAdb requestAdb = new RequestAdb();
+            requestAdb.setUser(user);
+            requestAdb.setPassword(password);
+            log.info(JSON.toJSONString(requestAdb));
 
-            ResponseEntity<ResponseAdbDto> resultAdbDtoResponseEntity =
-                    restTemplate.postForEntity(hostAndPort, requestAdbDto, ResponseAdbDto.class);
+            ResponseEntity<ResponseAdb> resultAdbDtoResponseEntity =
+                    restTemplate.postForEntity(hostAndPort, requestAdb, ResponseAdb.class);
 
             log.info(JSON.toJSONString(resultAdbDtoResponseEntity.getBody()));
 
